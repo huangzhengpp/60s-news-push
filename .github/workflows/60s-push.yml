@@ -1,20 +1,22 @@
 name: 每日60s读懂世界推送
 on:
-  # 定时任务 GitHub使用UTC时区！北京时间 = UTC+8
-  # UTC 2:00  = 北京时间 10:00（推荐，等接口更新完成）
   schedule:
+    # UTC 2点 = 北京时间10点（推荐，接口此时已经更新当日图片）
     - cron: "0 1 * * *"
-  # 支持手动点击按钮测试运行
-  workflow_dispatch:
+  workflow_dispatch: #支持手动测试运行
 
 jobs:
   push_news:
     runs-on: ubuntu-latest
+    env:
+      WPUSH_APIKEY: ${{ secrets.WPUSH_APIKEY }}
     steps:
-      - name: 请求图片并推送到微信
-        env:
-          WPUSH_KEY: ${{ secrets.WPUSH_KEY }}
+      - name: 调用新版WPush接口推送新闻图片
         run: |
-          curl "https://wpush.cn/api/push/$WPUSH_KEY" \
-          -F "title=每日60s读懂世界" \
-          -F "image=https://60s.viki.moe/v2/60s?encoding=image-proxy"
+          curl --location 'https://api.wpush.cn/api/v1/send' \
+          --header 'Content-Type: application/json' \
+          --data '{
+            "apikey": "${WPUSH_APIKEY}",
+            "title": "每日60s读懂世界",
+            "content": ""
+          }'
